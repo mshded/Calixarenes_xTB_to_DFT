@@ -1,52 +1,82 @@
-# Machine-Learning Package for xTB-to-ORCA/DFT Correction in Calixarene and Thiacalixarene Systems
+# Machine Learning Correction of xTB-Calculated Frontier Orbital Energies in Calixarene and Thiacalixarene Systems
 
 ## Overview
 
-This package accompanies the manuscript on machine-learning correction of low-cost xTB-derived quantities toward reference values obtained from ORCA/DFT calculations for calixarene and thiacalixarene systems.
+This repository contains the data, machine-learning models, frozen evaluation splits, prediction outputs, diagnostic tables, and analysis notebooks associated with a study of **xTB-to-ORCA/DFT correction for calixarene and thiacalixarene derivatives**.
 
-The primary modelling endpoints are:
+The study evaluates whether low-cost xTB-derived descriptors can be corrected toward reference quantum-chemical values for structurally diverse calixarene and thiacalixarene systems using classical machine-learning models.
 
-- **HOMO energy** (eV)
-- **LUMO energy** (eV)
-- **Final Energy** (Eh)
-These results are stored separately under `exploratory_final_energy/` because the available calculation workflow indicates that this field may include values generated under non-identical computational regimes. 
+The repository focuses on two primary prediction targets:
 
-The package contains:
+* **HOMO energy**, eV
+* **LUMO energy**, eV
 
-- processed full and pruned datasets;
-- frozen split definitions and cross-validation split artifacts;
-- reported model-selection and holdout-evaluation outputs;
-- object-level predictions and diagnostic tables;
-- serialized evaluation and deployment model bundles;
-- analysis notebooks;
-- the Python environment specification.
+An additional target is provided as a separate exploratory analysis:
+
+* **Final Energy**, Eh
+
+Results for `Final Energy` are intentionally stored separately under `exploratory_final_energy/`, because interpretation of this field requires particular caution with respect to molecular size, structural complexity, and possible heterogeneity of the underlying calculation workflow.
+
+---
+
+## Dataset
+
+The full dataset contains **266 molecular structures** assigned to **22 chemically defined groups** of calixarene and thiacalixarene derivatives.
+
+The chemical space includes, among others:
+
+* lower-rim unsubstituted calixarenes and thiacalixarenes;
+* lower-rim protected thiacalixarenes;
+* alkoxy- and bromoalkoxy-substituted derivatives;
+* azo dye derivatives;
+* pyrazole, terpyridine, and triazole derivatives;
+* multithiacalixarene systems;
+* oxyethylene, crown-ether, thioether, thioester, and thiol-containing derivatives.
+
+Two processed datasets are provided:
+
+| File                             | Records | Purpose                                                                                            |
+| -------------------------------- | ------: | -------------------------------------------------------------------------------------------------- |
+| `data/calix_database_full.csv`   |     266 | Full dataset used for the primary within-group benchmark and the grouped unseen-groups stress test |
+| `data/calix_database_pruned.csv` |     263 | Sensitivity-analysis dataset obtained after removal of three diagnosed high-impact records         |
+
+The pruned dataset excludes:
+
+* `Group 11 / 129.log`
+* `Group 11 / 135.log`
+* `Group 13 / 174.log`
+
+The pruned dataset is provided only for **sensitivity analysis**. Removal of these records improves several metrics, but does not by itself justify their permanent exclusion from the scientific dataset.
 
 ---
 
 ## Scientific Scope
 
-The package supports three distinct evaluation protocols:
+This repository supports three distinct evaluation protocols.
 
-| Protocol | Dataset size | Train size | Test size | Groups in train/test | Interpretation |
-|---|---:|---:|---:|---:|---|
-| Full within-group interpolation | 266 | 211 | 55 | 22 / 22 | Primary benchmark: interpolation within chemical groups represented in training |
-| Grouped unseen-groups split | 266 | 223 | 43 | 17 / 5 | Internal stress test: test chemical groups are absent from training |
-| Pruning sensitivity analysis | 263 | 210 | 53 | 22 / 22 | Post hoc sensitivity analysis after removal of three high-impact records |
+| Protocol                        | Dataset size | Train size | Test size | Groups in train/test | Scientific interpretation                                                             |
+| ------------------------------- | -----------: | ---------: | --------: | -------------------: | ------------------------------------------------------------------------------------- |
+| Full within-group interpolation |          266 |        211 |        55 |              22 / 22 | Primary benchmark: interpolation within chemical families represented during training |
+| Grouped unseen-groups split     |          266 |        223 |        43 |               17 / 5 | Stress test: prediction for chemical groups completely absent from training           |
+| Pruning sensitivity analysis    |          263 |        210 |        53 |              22 / 22 | Sensitivity analysis after removal of three diagnosed high-impact records             |
 
-The pruned dataset removes the following records:
+### Interpretation of the protocols
 
-- `Group 11 / 129.log`
-- `Group 11 / 135.log`
-- `Group 13 / 174.log`
+**Full within-group interpolation** is the principal practical scenario of this study. Each chemical group is represented in both training and test sets, and the models predict new structures belonging to already represented chemical families.
 
-Their removal is used to quantify sensitivity of the reported metrics to selected high-impact records; it does not, by itself, justify permanent exclusion of these structures from the scientific dataset.
+**Grouped unseen-groups split** is a stricter transferability test. The test structures belong to groups that are completely absent from the training data. Results from this protocol should be interpreted as evidence of transfer to new chemical groups rather than routine interpolation.
+
+**Pruning sensitivity analysis** evaluates how strongly the benchmark metrics depend on a small number of diagnostically difficult records. It is not treated as the default dataset or the primary reported result.
 
 ---
 
-## Directory Structure
+## Repository Structure
 
 ```text
-ml_package/
+Calixarenes_xTB_to_DFT/
+│
+├── README.md
+│
 ├── data/
 │   ├── calix_database_full.csv
 │   └── calix_database_pruned.csv
@@ -59,17 +89,27 @@ ml_package/
 │   │   ├── full_within_group/
 │   │   ├── grouped_unseen_groups/
 │   │   └── pruning_sensitivity/
+│   │
 │   ├── evaluation/
 │   │   ├── full_within_group/
 │   │   ├── grouped_unseen_groups/
 │   │   └── pruning_sensitivity/
+│   │
 │   └── exploratory_final_energy/
 │       ├── deployment/
+│       │   ├── full_within_group/
+│       │   ├── grouped_unseen_groups/
+│       │   └── pruning_sensitivity/
+│       │
 │       └── evaluation/
+│           ├── full_within_group/
+│           ├── grouped_unseen_groups/
+│           └── pruning_sensitivity/
 │
 ├── notebooks/
 │   ├── HOMO_LUMO_grouped.ipynb
-│   └── HOMO_LUMO_within_group_holdout.ipynb
+│   ├── HOMO_LUMO_within_group_holdout.ipynb
+│   └── HOMO_LUMO_within_group_holdout_pruned.ipynb
 │
 ├── outputs/
 │   ├── full_within_group/
@@ -78,12 +118,14 @@ ml_package/
 │   │   ├── figures/
 │   │   ├── metrics/
 │   │   └── predictions/
+│   │
 │   ├── grouped_unseen_groups/
 │   │   ├── diagnostics/
 │   │   ├── exploratory_final_energy/
 │   │   ├── figures/
 │   │   ├── metrics/
 │   │   └── predictions/
+│   │
 │   └── pruning_sensitivity/
 │       ├── diagnostics/
 │       ├── exploratory_final_energy/
@@ -96,181 +138,233 @@ ml_package/
     │   ├── full_within_group/
     │   ├── grouped_unseen_groups/
     │   └── pruning_sensitivity/
+    │
     └── main/
+```
+
+---
+
+## Reported Primary Results: HOMO and LUMO
+
+The principal results of the study concern correction of HOMO and LUMO energies.
+
+### Frozen holdout performance
+
+| Evaluation protocol             | Target | Selected model | MAE, eV | RMSE, eV |     R² | Q95 absolute error, eV | Maximum absolute error, eV | Test records |
+| ------------------------------- | ------ | -------------- | ------: | -------: | -----: | ---------------------: | -------------------------: | -----------: |
+| Full within-group interpolation | HOMO   | RandomForest   |  0.1284 |   0.2772 | 0.7559 |                 0.3856 |                     1.7727 |           55 |
+| Full within-group interpolation | LUMO   | XGBoost        |  0.1452 |   0.1923 | 0.9254 |                 0.3316 |                     0.5564 |           55 |
+| Grouped unseen-groups split     | HOMO   | KernelRidge    |  0.1575 |   0.2330 | 0.8570 |                 0.4534 |                     0.7868 |           43 |
+| Grouped unseen-groups split     | LUMO   | Ridge          |  0.1421 |   0.2075 | 0.8690 |                 0.4557 |                     0.5602 |           43 |
+| Pruning sensitivity analysis    | HOMO   | RandomForest   |  0.1050 |   0.1468 | 0.9040 |                 0.3061 |                     0.4624 |           53 |
+| Pruning sensitivity analysis    | LUMO   | RandomForest   |  0.1366 |   0.1925 | 0.9275 |                 0.4285 |                     0.5140 |           53 |
+
+For all three frozen holdout protocols, the selected HOMO and LUMO correction models produced smaller absolute errors than the uncorrected xTB baseline for every evaluated test record.
+
+### Main interpretation
+
+* The **full within-group protocol** provides the primary practical evidence for prediction within already represented calixarene and thiacalixarene families.
+* The **grouped unseen-groups protocol** shows that HOMO and LUMO correction remains effective even when test structures belong to chemical groups not represented during training.
+* The **pruning sensitivity protocol** indicates that a small number of chemically or computationally unusual records have a measurable influence on the error tail, especially for HOMO.
+
+---
+
+## Exploratory Final Energy Results
+
+Results for the database field labelled `Final Energy` are provided as a separate exploratory analysis.
+
+| Evaluation protocol             | Selected model | MAE, Eh | RMSE, Eh |     R² | Q95 absolute error, Eh | Maximum absolute error, Eh | Test records |
+| ------------------------------- | -------------- | ------: | -------: | -----: | ---------------------: | -------------------------: | -----------: |
+| Full within-group interpolation | RandomForest   |  1384.0 |   2642.0 | 0.6987 |                 6613.7 |                    11032.4 |           55 |
+| Grouped unseen-groups split     | RandomForest   |  1821.7 |   3290.6 | 0.2134 |                 8477.4 |                     9804.3 |           43 |
+| Pruning sensitivity analysis    | RandomForest   |  1150.6 |   2184.8 | 0.7305 |                 5609.5 |                     7344.3 |           53 |
+
+The `Final Energy` models reduce the error relative to the raw xTB baseline in the evaluated settings, but these results require a more conservative interpretation than the HOMO/LUMO models.
+
+In particular:
+
+* `Final Energy` is an extensive molecular quantity and is therefore strongly influenced by molecular size and composition;
+* the largest and most structurally complex derivatives contribute substantially to the error tail;
+* grouped transfer performance is notably weaker for `Final Energy` than for HOMO and LUMO;
+* these models should not be interpreted as a universal replacement for reference-level energy calculations.
+
+Accordingly, all corresponding artifacts are stored separately in:
+
+```text
+models/exploratory_final_energy/
+outputs/*/exploratory_final_energy/
 ```
 
 ---
 
 ## Data Files
 
-| File | Description | Intended use |
-|---|---|---|
-| `data/calix_database_full.csv` | Processed full dataset containing 266 molecular records assigned to 22 chemical groups | Source dataset for the full within-group and grouped unseen-groups analyses |
-| `data/calix_database_pruned.csv` | Processed sensitivity dataset containing 263 molecular records after removal of three selected high-impact records | Source dataset for the pruning sensitivity analysis only |
+| File                             | Description                                                                               | Intended use                                         |
+| -------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `data/calix_database_full.csv`   | Processed full dataset with 266 molecular records and 22 chemical groups                  | Full within-group and grouped unseen-groups analyses |
+| `data/calix_database_pruned.csv` | Processed sensitivity dataset with 263 records after removal of three selected structures | Pruning sensitivity analysis only                    |
 
-The chemical-group labels define the validation structure used in this study. They represent chemically assigned groups used to distinguish interpolation within represented groups from evaluation on groups withheld from training.
+The chemical-group assignments define the validation design used in this work. They distinguish:
+
+* interpolation within chemical families represented during training;
+* evaluation on chemical groups withheld from training.
 
 ---
 
-## Main Evaluation Splits
+## Frozen Evaluation Splits
 
 The `splits/main/` directory contains the frozen train/test assignments used for the reported holdout evaluations.
 
-| File | Description |
-|---|---|
-| `within_group_full_split.csv` | Record-level train/test assignment for the full within-group protocol |
-| `within_group_full_split.json` | Metadata and indices for the full within-group frozen split |
-| `within_group_full_group_summary.csv` | Group-level summary of the full within-group split |
-| `grouped_split.csv` | Record-level train/test assignment for the grouped unseen-groups protocol |
-| `grouped_split.json` | Metadata and indices for the grouped frozen split |
-| `grouped_split_group_summary.csv` | Group-level summary of the grouped split |
-| `within_group_pruned_split.csv` | Record-level train/test assignment for the pruned within-group protocol |
-| `within_group_pruned_split.json` | Metadata and indices for the pruned frozen split |
-| `within_group_pruned_group_summary.csv` | Group-level summary of the pruned within-group split |
+| File                                    | Description                                                               |
+| --------------------------------------- | ------------------------------------------------------------------------- |
+| `within_group_full_split.csv`           | Record-level train/test assignment for the full within-group protocol     |
+| `within_group_full_split.json`          | Metadata and indices for the full within-group frozen split               |
+| `within_group_full_group_summary.csv`   | Group-level summary of the full within-group split                        |
+| `grouped_split.csv`                     | Record-level train/test assignment for the grouped unseen-groups protocol |
+| `grouped_split.json`                    | Metadata and indices for the grouped frozen split                         |
+| `grouped_split_group_summary.csv`       | Group-level summary of the grouped split                                  |
+| `within_group_pruned_split.csv`         | Record-level train/test assignment for the pruned within-group protocol   |
+| `within_group_pruned_split.json`        | Metadata and indices for the pruned frozen split                          |
+| `within_group_pruned_group_summary.csv` | Group-level summary of the pruned within-group split                      |
 
-The `splits/cv/` directory contains the split artifacts used during model comparison and hyperparameter selection:
+The `splits/cv/` directory contains the cross-validation artifacts used during model comparison and model selection:
 
-- `full_within_group/`: repeated-holdout and inner-shuffle split artifacts for the full dataset;
-- `grouped_unseen_groups/`: outer and inner grouped cross-validation split artifacts;
-- `pruning_sensitivity/`: repeated-holdout and inner-shuffle split artifacts for the pruned dataset.
+| Directory                          | Contents                                                                  |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| `splits/cv/full_within_group/`     | Repeated-holdout and inner-shuffle split artifacts for the full dataset   |
+| `splits/cv/grouped_unseen_groups/` | Outer and inner grouped cross-validation split artifacts                  |
+| `splits/cv/pruning_sensitivity/`   | Repeated-holdout and inner-shuffle split artifacts for the pruned dataset |
 
----
-
-## Reported Primary Results: HOMO and LUMO
-
-The primary results reported in the manuscript concern HOMO and LUMO correction. Holdout metrics for the selected models are provided in each protocol-specific `outputs/*/metrics/holdout_test_metrics.csv` file.
-
-| Evaluation protocol | Target | Selected model | MAE (eV) | RMSE (eV) | R² | Q95 absolute error (eV) | Maximum absolute error (eV) | Test records |
-|---|---|---|---:|---:|---:|---:|---:|---:|
-| Full within-group interpolation | HOMO | RandomForest | 0.1284 | 0.2772 | 0.7559 | 0.3856 | 1.7727 | 55 |
-| Full within-group interpolation | LUMO | XGBoost | 0.1452 | 0.1923 | 0.9254 | 0.3316 | 0.5564 | 55 |
-| Grouped unseen-groups split | HOMO | KernelRidge | 0.1575 | 0.2330 | 0.8570 | 0.4534 | 0.7868 | 43 |
-| Grouped unseen-groups split | LUMO | Ridge | 0.1421 | 0.2075 | 0.8690 | 0.4557 | 0.5602 | 43 |
-| Pruning sensitivity analysis | HOMO | RandomForest | 0.1050 | 0.1468 | 0.9040 | 0.3061 | 0.4624 | 53 |
-| Pruning sensitivity analysis | LUMO | RandomForest | 0.1366 | 0.1925 | 0.9275 | 0.4285 | 0.5140 | 53 |
-
-In the reported frozen holdouts, the selected HOMO and LUMO correction models produced smaller absolute errors than the uncorrected xTB baseline for all evaluated test records in all three protocols.
-
----
-
-## Exploratory Final Energy Results
-
-Results for the database field labelled `Final Energy` are stored in dedicated `exploratory_final_energy/` directories and are intentionally separated from the primary HOMO/LUMO results.
-
-| Evaluation protocol | Selected model | MAE (Eh) | RMSE (Eh) | R² | Q95 absolute error (Eh) | Maximum absolute error (Eh) | Test records |
-|---|---|---:|---:|---:|---:|---:|---:|
-| Full within-group interpolation | RandomForest | 1384.0 | 2642.0 | 0.6987 | 6613.7 | 11032.4 | 55 |
-| Grouped unseen-groups split | RandomForest | 1821.7 | 3290.6 | 0.2134 | 8477.4 | 9804.3 | 43 |
-| Pruning sensitivity analysis | RandomForest | 1150.6 | 2184.8 | 0.7305 | 5609.5 | 7344.3 | 53 |
-
-These values document the exploratory model behaviour for the stored database field. They should not be used to claim a uniform energy-correction model, thermodynamic ranking capability, or transferability of absolute energy predictions without a separate calculation-level audit of the target definition.
+These split artifacts are included to preserve the exact evaluation design underlying the reported results.
 
 ---
 
 ## Output Files
 
-Each protocol-specific directory under `outputs/` contains the following file classes.
+Each evaluation protocol has a corresponding directory under `outputs/`.
+
+### `outputs/full_within_group/`
+
+Reported outputs for the primary interpolation benchmark on the complete dataset.
+
+### `outputs/grouped_unseen_groups/`
+
+Reported outputs for the transferability stress test on chemical groups absent from the training subset.
+
+### `outputs/pruning_sensitivity/`
+
+Reported outputs for the sensitivity analysis after removal of three diagnosed high-impact records.
+
+Within each protocol directory, outputs are organized as follows.
 
 ### `metrics/`
 
-These files contain selected-model information, cross-validation summaries, frozen-holdout metrics, and model configuration metadata.
-
-| File type | Description |
-|---|---|
-| `holdout_test_metrics.csv` | Final frozen-holdout metrics for selected models and the uncorrected xTB baseline |
-| `model_comparison_final.csv` | Consolidated comparison of final model results |
-| `final_model_selection.csv` | Selected model for each analysed target |
-| `final_model_artifacts.json` | Stored configuration metadata for final model artifacts |
-| `*_summary_main.csv` | Cross-validation summary for the primary HOMO/LUMO targets |
-| `*_fold_metrics.csv` | Fold-level metrics supporting the cross-validation summary |
-| `*_best_params.json` | Selected hyperparameter settings |
-| `comparison_homo_lumo_*.csv` | Model-family comparison for HOMO and LUMO |
+| File type                    | Description                                                         |
+| ---------------------------- | ------------------------------------------------------------------- |
+| `holdout_test_metrics.csv`   | Frozen-holdout metrics for the selected models and the xTB baseline |
+| `model_comparison_final.csv` | Consolidated comparison of final candidate models                   |
+| `final_model_selection.csv`  | Selected model for each analysed target                             |
+| `final_model_artifacts.json` | Metadata associated with the stored final model artifacts           |
+| `*_summary_main.csv`         | Cross-validation summaries for HOMO and LUMO                        |
+| `*_fold_metrics.csv`         | Fold-level cross-validation metrics                                 |
+| `*_best_params.json`         | Selected hyperparameter values                                      |
+| `comparison_homo_lumo_*.csv` | Model-family comparisons for HOMO and LUMO                          |
 
 ### `predictions/`
 
-| File | Description |
-|---|---|
-| `test_results_hybrid_homo_lumo_energy.csv` | Record-level frozen-test predictions, reference values, baseline values, and residual information for the selected target models |
+| File                                       | Description                                                                                           |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `test_results_hybrid_homo_lumo_energy.csv` | Record-level frozen-test predictions, reference values, xTB baseline values, and residual information |
 
 ### `diagnostics/`
 
-| File | Description |
-|---|---|
+| File                   | Description                                                    |
+| ---------------------- | -------------------------------------------------------------- |
 | `homo_diagnostics.csv` | Object-level diagnostic information for HOMO prediction errors |
 | `lumo_diagnostics.csv` | Object-level diagnostic information for LUMO prediction errors |
 
 ### `figures/`
 
-| File | Description |
-|---|---|
-| `hybrid_model_parity_plots.png` | Parity plots generated for the corresponding evaluation protocol |
+| File                            | Description                                            |
+| ------------------------------- | ------------------------------------------------------ |
+| `hybrid_model_parity_plots.png` | Parity plots for the selected protocol-specific models |
 
 ### `exploratory_final_energy/`
 
-This directory contains Final Energy-specific model comparison and diagnostic files. These files are retained for transparency but are not treated as evidence for a homogeneous primary prediction endpoint.
+This directory contains energy-specific model comparisons and diagnostic outputs. These artifacts are retained for transparency and secondary analysis, but they are not treated as evidence for a uniformly transferable primary prediction endpoint.
 
 ---
 
 ## Model Artifacts
 
-### Evaluation Models
+### Evaluation models
 
-The `models/evaluation/` directory contains serialized model and bundle files associated with the reported protocol-specific evaluations.
+The `models/evaluation/` directory contains serialized model files and model bundles associated with the reported protocol-specific held-out evaluations.
 
-| Protocol | HOMO model | LUMO model |
-|---|---|---|
-| Full within-group interpolation | RandomForest | XGBoost |
-| Grouped unseen-groups split | KernelRidge | Ridge |
-| Pruning sensitivity analysis | RandomForest | RandomForest |
+| Protocol                        | HOMO model   | LUMO model   |
+| ------------------------------- | ------------ | ------------ |
+| Full within-group interpolation | RandomForest | XGBoost      |
+| Grouped unseen-groups split     | KernelRidge  | Ridge        |
+| Pruning sensitivity analysis    | RandomForest | RandomForest |
 
-Evaluation model artifacts should be used when inspecting the reported model configurations and the corresponding held-out evaluation workflow.
+Evaluation artifacts are intended for reproducing or examining the reported evaluation workflows. They should not be interpreted as models trained on the complete available dataset.
 
-### Deployment Bundles
+### Deployment models
 
-The `models/deployment/` directory contains serialized bundles labelled as trained on all available data for the corresponding protocol/model configuration.
+The `models/deployment/` directory contains model bundles trained on all available records under the corresponding protocol-defined model configuration.
 
-These bundles are intended for prospective prediction workflows. They are **not independent test evaluations** and must not be used to report generalization performance.
+| Protocol-derived configuration      | HOMO deployment model | LUMO deployment model |
+| ----------------------------------- | --------------------- | --------------------- |
+| Full within-group configuration     | RandomForest          | XGBoost               |
+| Grouped unseen-groups configuration | KernelRidge           | Ridge                 |
+| Pruning sensitivity configuration   | RandomForest          | RandomForest          |
 
-### Exploratory Final Energy Models
+Deployment bundles are intended for prospective prediction workflows. Because they are trained on all available records, they must not be used to report independent generalization performance.
 
-The `models/exploratory_final_energy/` directory contains evaluation and deployment model artifacts for the secondary Final Energy analysis. Their interpretation is subject to the methodological limitation stated above.
+### Exploratory Final Energy models
 
-> **Security note:** `.pkl` files should be loaded only in a trusted Python environment and only when their origin is trusted.
+The `models/exploratory_final_energy/` directory contains separate evaluation and deployment model artifacts for the exploratory `Final Energy` analysis.
+
+These models are provided for transparency and limited exploratory use only. They should not be interpreted as validated general-purpose replacements for ORCA/DFT energy calculations.
+
+> **Security note:** serialized `.pkl` files should only be loaded in a trusted Python environment and only when their origin is trusted.
 
 ---
 
 ## Notebooks
 
-| Notebook | Purpose |
-|---|---|
-| `notebooks/HOMO_LUMO_within_group_holdout.ipynb` | Analysis workflow associated with within-group evaluations, including the full-dataset benchmark and/or pruning sensitivity analysis as implemented in the supplied notebook |
-| `notebooks/HOMO_LUMO_grouped.ipynb` | Analysis workflow associated with the grouped unseen-groups evaluation |
+| Notebook                                                | Purpose                                                          |
+| ------------------------------------------------------- | ---------------------------------------------------------------- |
+| `notebooks/HOMO_LUMO_within_group_holdout.ipynb`        | Full within-group interpolation workflow on the complete dataset |
+| `notebooks/HOMO_LUMO_grouped.ipynb`                     | Grouped unseen-groups evaluation workflow                        |
+| `notebooks/HOMO_LUMO_within_group_holdout_pruned.ipynb` | Pruning sensitivity workflow on the reduced dataset              |
 
-The exported split artifacts and output tables stored in this package are the records supporting the reported manuscript results.
-
-Before rerunning the notebooks from this reorganized package, verify that their internal file paths reference:
+Before rerunning the notebooks, verify that the internal dataset paths correspond to the repository structure:
 
 ```text
 data/calix_database_full.csv
 data/calix_database_pruned.csv
 ```
 
-and that newly generated outputs are written to the intended protocol-specific subdirectories.
+Newly generated output files should be written to the corresponding protocol-specific directories under `outputs/`.
 
 ---
 
 ## Environment Setup
 
-A Python environment specification is provided in:
+The Python environment specification is provided in:
 
 ```text
 environment/requirements.txt
 ```
 
-Example setup on Windows:
+### Windows installation
 
-```cmd
-cd /d "path\to\ml_package"
+Clone the repository and create a virtual environment:
+
+```bash
+git clone https://github.com/mshded/Calixarenes_xTB_to_DFT.git
+cd Calixarenes_xTB_to_DFT
 
 py -m venv .venv
 call .venv\Scripts\activate
@@ -279,17 +373,98 @@ python -m pip install --upgrade pip
 python -m pip install -r environment\requirements.txt
 ```
 
-To open the notebooks:
+Start Jupyter Notebook:
 
-```cmd
+```bash
 jupyter notebook
 ```
 
-If Jupyter Notebook is not installed by the environment specification, install it in the activated environment:
+If Jupyter Notebook is not already installed in the environment, install it after activating the virtual environment:
 
-```cmd
+```bash
 python -m pip install notebook
 jupyter notebook
 ```
 
-Because the package includes serialized model artifacts, rerunning the notebooks and recording the exact software environment is recommended before reuse of the models outside the associated manuscript analysis.
+---
+
+## Recommended Model Use
+
+The models in this repository should be selected according to the chemical scenario and the target property.
+
+| Use case                                                                      | Recommended target | Recommended model source                   | Interpretation                                                               |
+| ----------------------------------------------------------------------------- | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------- |
+| New derivative belonging to a represented calixarene or thiacalixarene family | HOMO               | `models/deployment/full_within_group/`     | Preferred practical correction workflow                                      |
+| New derivative belonging to a represented calixarene or thiacalixarene family | LUMO               | `models/deployment/full_within_group/`     | Preferred practical correction workflow                                      |
+| Structure belonging to a chemical group not represented during training       | HOMO or LUMO       | `models/deployment/grouped_unseen_groups/` | Preliminary transfer-oriented estimate; additional validation is recommended |
+| Investigation of sensitivity to diagnosed high-impact records                 | HOMO or LUMO       | `models/deployment/pruning_sensitivity/`   | Sensitivity-analysis model, not the default model                            |
+| Approximate exploration of the stored `Final Energy` field                    | Final Energy       | `models/exploratory_final_energy/`         | Exploratory estimate only; not a replacement for reference calculations      |
+
+---
+
+## Applicability Domain and Limitations
+
+The models were developed specifically for the chemical space represented in this repository: calixarene and thiacalixarene derivatives distributed across 22 chemically assigned groups.
+
+Predictions are most directly supported for structures that are chemically related to the represented families and that remain within a comparable range of molecular size and functional-group complexity.
+
+Particular caution is required for:
+
+* structures belonging to chemical groups absent from the training data;
+* very large multithiacalixarene or multi-macrocyclic systems;
+* molecules containing unusual combinations of heavy atoms or strongly electron-withdrawing peripheral fragments;
+* structurally extreme compounds relative to the represented chemical families;
+* prediction of `Final Energy`, especially across substantially different molecular sizes or structural classes;
+* structures requiring interpretation beyond preliminary screening or prioritization.
+
+The models are intended to support rapid screening and prioritization of candidate structures before more expensive reference-level quantum-chemical calculations. They should not be treated as universal replacements for ORCA/DFT calculations outside the represented chemical domain.
+
+---
+
+## Reproducibility Notes
+
+This repository provides:
+
+* processed datasets used in the reported analyses;
+* frozen train/test split definitions;
+* cross-validation split artifacts;
+* object-level model predictions;
+* model-selection tables and holdout metrics;
+* serialized evaluation and deployment model bundles;
+* analysis notebooks;
+* environment requirements.
+
+The frozen split files and stored output tables should be treated as the primary records supporting the reported numerical results.
+
+When rerunning analyses, differences may arise from software versions, random-state handling, or changes in library implementations. For this reason, the supplied environment specification and frozen split artifacts should be retained when reproducing the reported evaluation.
+
+---
+
+## Data and Code Availability
+
+The processed datasets, frozen split definitions, trained model artifacts, output tables, diagnostic results, and analysis notebooks supporting this study are available in this repository.
+
+The full quantum-chemical source files and additional structural materials may be provided separately through the Supporting Information or upon reasonable request, depending on the final publication workflow.
+
+---
+
+## Citation
+
+The associated manuscript is currently in preparation.
+
+After publication, this section will be updated with the full bibliographic citation and DOI.
+
+For use of the repository before publication, please cite the repository as:
+
+```text
+Betekhtin, A. A. Calixarenes_xTB_to_DFT: Machine Learning Correction of
+xTB-Calculated Frontier Orbital Energies in Calixarene and Thiacalixarene
+Systems. GitHub repository, 2026.
+https://github.com/mshded/Calixarenes_xTB_to_DFT
+```
+
+---
+
+## Repository Contact
+
+For questions regarding the dataset, model artifacts, or analysis workflow, please contact the repository author through GitHub.
