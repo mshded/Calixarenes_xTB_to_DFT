@@ -1,0 +1,6 @@
+split_level,repeat_id,split_id,outer_fold,inner_fold,target_name,n_train_samples,n_valid_samples,n_train_groups,n_valid_groups,n_overlap_groups,all_groups_present_in_train,all_groups_present_in_valid,overlap_groups
+final_inner_shuffle_split,,,,1,shared_final_tuning,168,43,22,16,16,True,False,Group 10|Group 11|Group 12|Group 13|Group 15|Group 16|Group 18|Group 19|Group 2|Group 20|Group 21|Group 22|Group 3|Group 4|Group 8|Group 9
+final_inner_shuffle_split,,,,2,shared_final_tuning,168,43,22,16,16,True,False,Group 1|Group 10|Group 11|Group 12|Group 13|Group 14|Group 15|Group 16|Group 19|Group 21|Group 22|Group 3|Group 4|Group 6|Group 8|Group 9
+final_inner_shuffle_split,,,,3,shared_final_tuning,168,43,22,16,16,True,False,Group 1|Group 10|Group 11|Group 12|Group 13|Group 14|Group 15|Group 16|Group 18|Group 19|Group 20|Group 3|Group 4|Group 6|Group 7|Group 9
+final_inner_shuffle_split,,,,4,shared_final_tuning,168,43,22,19,19,True,False,Group 1|Group 10|Group 11|Group 13|Group 14|Group 15|Group 16|Group 19|Group 2|Group 20|Group 21|Group 22|Group 3|Group 4|Group 5|Group 6|Group 7|Group 8|Group 9
+final_inner_shuffle_split,,,,5,shared_final_tuning,168,43,22,17,17,True,False,Group 1|Group 10|Group 11|Group 12|Group 13|Group 14|Group 15|Group 16|Group 19|Group 2|Group 21|Group 22|Group 3|Group 4|Group 7|Group 8|Group 9

@@ -1,0 +1,5 @@
+split_level,repeat_id,split_id,outer_fold,inner_fold,target_name,n_train_samples,n_valid_samples,n_train_groups,n_valid_groups,n_overlap_groups,overlap_groups
+final_inner_cv,,,,1,shared_final_tuning,168,55,13,4,0,
+final_inner_cv,,,,2,shared_final_tuning,166,57,13,4,0,
+final_inner_cv,,,,3,shared_final_tuning,166,57,12,5,0,
+final_inner_cv,,,,4,shared_final_tuning,169,54,13,4,0,
