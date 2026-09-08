@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains the data, machine-learning models, fixed data partitions, cross-validation splits, prediction outputs, diagnostic tables, and analysis notebooks associated with a study of **xTB-to-DFT correction for calixarene and thiacalixarene derivatives**.
+This repository contains the data, machine-learning models, fixed data partitions, cross-validation splits, prediction outputs, diagnostic tables, and analysis notebooks associated with a study of **xTB-to-ORCA/DFT correction for calixarene and thiacalixarene derivatives**.
 
 The study evaluates whether low-cost xTB-derived descriptors can be corrected toward reference quantum-chemical values for structurally diverse calixarene and thiacalixarene systems using classical machine-learning models.
 
@@ -111,6 +111,9 @@ Calixarenes_xTB_to_DFT/
 │   ├── HOMO_LUMO_within_group_holdout.ipynb
 │   └── HOMO_LUMO_within_group_holdout_pruned.ipynb
 │
+├── scripts/
+│   └── minimal_training_only_selection.py
+│
 ├── outputs/
 │   ├── full_within_group/
 │   │   ├── diagnostics/
@@ -126,12 +129,16 @@ Calixarenes_xTB_to_DFT/
 │   │   ├── metrics/
 │   │   └── predictions/
 │   │
-│   └── pruning_sensitivity/
-│       ├── diagnostics/
-│       ├── exploratory_final_energy/
-│       ├── figures/
-│       ├── metrics/
-│       └── predictions/
+│   ├── pruning_sensitivity/
+│   │   ├── diagnostics/
+│   │   ├── exploratory_final_energy/
+│   │   ├── figures/
+│   │   ├── metrics/
+│   │   └── predictions/
+│   │
+│   └── corrected_selection/
+│       ├── full_within_group/
+│       └── pruning_sensitivity/
 │
 └── splits/
     ├── cv/
@@ -257,6 +264,12 @@ Reported outputs for the internal grouped test on five chemical groups excluded 
 
 Reported outputs for the sensitivity analysis after removal of three diagnosed high-impact records.
 
+### `outputs/corrected_selection/`
+
+Retrospective HOMO and LUMO model-family selection restricted to the fixed training partitions. For the full dataset, the selected model families remained RandomForest for HOMO and XGBoost for LUMO. For the pruned dataset, the check selected XGBoost for both targets and includes the corresponding fixed-partition predictions and model bundles. These results supplement the original analyses and do not replace them. Final Energy was not included in this check.
+
+The file `holdout_test_metrics_corrected.csv` combines the new pruned HOMO and LUMO results with unchanged exploratory Final Energy rows from the original pruned analysis. The Final Energy rows are included only for reference and are not results of the retrospective training-only model-selection check.
+
 Within each protocol directory, outputs are organized as follows.
 
 ### `metrics/`
@@ -351,6 +364,16 @@ data/calix_database_pruned.csv
 ```
 
 Newly generated output files should be written to the corresponding protocol-specific directories under `outputs/`.
+
+---
+
+## Analysis Scripts
+
+| Script | Purpose |
+| ------ | ------- |
+| `scripts/minimal_training_only_selection.py` | Retrospective HOMO and LUMO model-family selection restricted to the fixed training partitions |
+
+The script automatically resolves the repository root from its location in the `scripts/` directory and writes the resulting artifacts to `outputs/corrected_selection/`. This check supplements the original complete-data repeated comparisons and does not replace them. It does not repeat the grouped analysis or the exploratory Final Energy analysis.
 
 ---
 
