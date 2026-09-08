@@ -1,0 +1,49 @@
+{
+  "protocol": "full",
+  "correction": "training-only model-family selection",
+  "random_state": 42,
+  "selection_repeats": 5,
+  "selection_test_size": 0.2,
+  "singleton_training_groups_retained_in_every_internal_train": [
+    "Group 17"
+  ],
+  "dataset_n": 266,
+  "frozen_train_n": 211,
+  "frozen_test_n": 55,
+  "dataset_sha256": "1081f3953333ddb8bbcbe21f845a801127b58de813eac245da2d6494abac88a1",
+  "frozen_split_sha256": "1b67c2c0043f51c2081059eaabcfe71b3f248dbe2d16c5df597d609702c0eb07",
+  "frozen_test_used_in_selection": false,
+  "new_winners": {
+    "HOMO": "RandomForest",
+    "LUMO": "XGBoost"
+  },
+  "old_winners": {
+    "HOMO": "RandomForest",
+    "LUMO": "XGBoost",
+    "Final Energy": "RandomForest"
+  },
+  "reuse_existing_final_artifact_by_target": {
+    "HOMO": true,
+    "LUMO": true
+  },
+  "changed_targets_requiring_refit": [],
+  "old_artifact_audit": {
+    "old_winners": {
+      "HOMO": "RandomForest",
+      "LUMO": "XGBoost",
+      "Final Energy": "RandomForest"
+    },
+    "final_inner_ids_are_training_only": true,
+    "old_prediction_ids_equal_frozen_test": true,
+    "old_selection_sha256": "cc1b64a1758781e5c55c38d4f4b1fa0a095724662f1849d26364812132397a12",
+    "old_final_inner_splits_sha256": "c3e499515c8208495de5855a2c4c722ff7fbbe21c9854cf2e8825dd3bdb1683a",
+    "old_predictions_sha256": "4521eec83027a5cfb59a700c2799d277524a584e99b5ea5fbd09231bbda9fb6c",
+    "old_final_artifacts_sha256": "aa5e3f4044ace3495da5d8813aa656bee924ddce10291cd8b3b0f0ad32a52555",
+    "old_selection_path": "outputs\\full_within_group\\metrics\\final_model_selection.csv",
+    "old_final_inner_splits_path": "splits\\cv\\full_within_group\\final_inner_shuffle_split_artifacts.csv",
+    "old_predictions_path": "outputs\\full_within_group\\predictions\\test_results_hybrid_homo_lumo_energy.csv",
+    "old_final_artifacts_path": "outputs\\full_within_group\\metrics\\final_model_artifacts.json"
+  },
+  "final_energy_status": "not rerun; existing full/pruned Final Energy selection must remain exploratory and must not be described as an independent frozen-holdout model-selection result",
+  "smoke_test": false
+}

@@ -1,0 +1,52 @@
+{
+  "protocol": "pruned",
+  "correction": "training-only model-family selection",
+  "random_state": 42,
+  "selection_repeats": 5,
+  "selection_test_size": 0.2,
+  "singleton_training_groups_retained_in_every_internal_train": [
+    "Group 17"
+  ],
+  "dataset_n": 263,
+  "frozen_train_n": 210,
+  "frozen_test_n": 53,
+  "dataset_sha256": "d13bbf61b66bbc969c4b02b3ac516df8ae7763a08b8e9a336193f99ce7958176",
+  "frozen_split_sha256": "b894d616373eb10cade876bedc005a04fa2b3659ef72ac87e2432a7d0561955a",
+  "frozen_test_used_in_selection": false,
+  "new_winners": {
+    "HOMO": "XGBoost",
+    "LUMO": "XGBoost"
+  },
+  "old_winners": {
+    "HOMO": "RandomForest",
+    "LUMO": "RandomForest",
+    "Final Energy": "RandomForest"
+  },
+  "reuse_existing_final_artifact_by_target": {
+    "HOMO": false,
+    "LUMO": false
+  },
+  "changed_targets_requiring_refit": [
+    "HOMO",
+    "LUMO"
+  ],
+  "old_artifact_audit": {
+    "old_winners": {
+      "HOMO": "RandomForest",
+      "LUMO": "RandomForest",
+      "Final Energy": "RandomForest"
+    },
+    "final_inner_ids_are_training_only": true,
+    "old_prediction_ids_equal_frozen_test": true,
+    "old_selection_sha256": "ee37e84c19d5721e06244942eca3bef208395fec76d5c5d3f4b87c0760974408",
+    "old_final_inner_splits_sha256": "a6082a1a4efa742878f4e120e27cffbe0353d6bd487d157b47fbe7be3c7e3920",
+    "old_predictions_sha256": "5b4ff663c5132cce8ee7b34fe5d8d2161b824a6218b482693c10449fb7046076",
+    "old_final_artifacts_sha256": "ea73d33734b9a347d93bad97faa5623605065c8c2e38e447065b0ed406803a01",
+    "old_selection_path": "outputs\\pruning_sensitivity\\metrics\\final_model_selection.csv",
+    "old_final_inner_splits_path": "splits\\cv\\pruning_sensitivity\\final_inner_shuffle_split_artifacts.csv",
+    "old_predictions_path": "outputs\\pruning_sensitivity\\predictions\\test_results_hybrid_homo_lumo_energy.csv",
+    "old_final_artifacts_path": "outputs\\pruning_sensitivity\\metrics\\final_model_artifacts.json"
+  },
+  "final_energy_status": "not rerun; existing full/pruned Final Energy selection must remain exploratory and must not be described as an independent frozen-holdout model-selection result",
+  "smoke_test": false
+}

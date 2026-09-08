@@ -1,0 +1,3 @@
+target,model,selection_MAE_mean,selection_MAE_std,selection_RMSE_mean,selection_R2_mean,selection_Q95_AE_mean,n_selection_splits,selection_scope,performance_estimate,note
+HOMO,XGBoost,0.09169839784335675,0.01731567941889072,0.133523846349131,0.873222637471418,0.299090246184692,5,frozen_training_partition_only,False,Internal selection criterion only; use frozen holdout for performance estimation
+LUMO,XGBoost,0.11385488608601887,0.014405210418608398,0.20381395675833178,0.9036401370035207,0.3115780725634766,5,frozen_training_partition_only,False,Internal selection criterion only; use frozen holdout for performance estimation
